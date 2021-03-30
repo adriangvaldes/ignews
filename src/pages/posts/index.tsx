@@ -1,10 +1,26 @@
+import React from 'react';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
-import styles from './styles.module.scss';
 import Prismic from '@prismicio/client';
+import { RichText } from 'prismic-dom';
+import Link from 'next/link';
+
 import { getPrismicClient } from '../../services/prismic';
 
-export default function Posts() {
+import styles from './styles.module.scss';
+
+
+type Post = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  updatedAt: string;
+};
+interface PostsProps {
+  posts: Post[]
+}
+
+export default function Posts({ posts } :PostsProps) {
   return (
     <>
       <Head>
@@ -13,21 +29,15 @@ export default function Posts() {
 
       <main className={styles.container}>
         <div className={styles.posts}>
-          <a href="#">
-            <time>12 de março de 2021</time>
-            <strong>Google bloqueia grande operação de contra-terrorismo</strong>
-            <p>o grupo hacker que estava explorando 11 vulnerabilidades zero-day para comprometer dispositivos iOS, Android e Windows era na verdade de uma nação ocidental em uma operação de contra-terrorismo</p>
-          </a>
-          <a href="#">
-            <time>12 de março de 2021</time>
-            <strong>Google bloqueia grande operação de contra-terrorismo</strong>
-            <p>o grupo hacker que estava explorando 11 vulnerabilidades zero-day para comprometer dispositivos iOS, Android e Windows era na verdade de uma nação ocidental em uma operação de contra-terrorismo</p>
-          </a>
-          <a href="#">
-            <time>12 de março de 2021</time>
-            <strong>Google bloqueia grande operação de contra-terrorismo</strong>
-            <p>o grupo hacker que estava explorando 11 vulnerabilidades zero-day para comprometer dispositivos iOS, Android e Windows era na verdade de uma nação ocidental em uma operação de contra-terrorismo</p>
-          </a>
+          { posts.map(post => (
+          <Link href={`/posts/${post.slug}`}>
+            <a key={post.slug} >
+              <time>{post.updatedAt}</time>
+              <strong>{post.title}</strong>
+              <p>{post.excerpt}</p>
+            </a>
+          </Link>
+          ))} 
         </div>
       </main>
     </>
@@ -44,9 +54,22 @@ export const getStaticProps: GetStaticProps = async () => {
     pageSize: 100,
   })
 
-  console.log(response)
+  const posts = response.results.map(post => {
+    return {
+      slug: post.uid,
+      title: RichText.asText(post.data.title),
+      excerpt: post.data.content.find(content => content.type === 'paragraph')?.text ?? '',
+      updatedAt: new Date(post.last_publication_date).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      })  
+    };
+  });
   
   return {
-    props: {}
+    props: {
+      posts
+    }
   }
 }
