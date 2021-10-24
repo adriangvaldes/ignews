@@ -20,7 +20,7 @@ interface PostsProps {
   posts: Post[]
 }
 
-export default function Posts({ posts } :PostsProps) {
+export default function Posts({ posts }: PostsProps) {
   return (
     <>
       <Head>
@@ -29,15 +29,15 @@ export default function Posts({ posts } :PostsProps) {
 
       <main className={styles.container}>
         <div className={styles.posts}>
-          { posts.map(post => (
-          <Link key={post.slug} href={`/posts/${post.slug}`}>
-            <a>
-              <time>{post.updatedAt}</time>
-              <strong>{post.title}</strong>
-              <p>{post.excerpt}</p>
-            </a>
-          </Link>
-          ))} 
+          {posts.map(post => (
+            <Link key={post.slug} href={`/posts/${post.slug}`}>
+              <a>
+                <time>{post.updatedAt}</time>
+                <strong>{post.title}</strong>
+                <p>{post.excerpt}</p>
+              </a>
+            </Link>
+          ))}
         </div>
       </main>
     </>
@@ -63,10 +63,10 @@ export const getStaticProps: GetStaticProps = async () => {
         day: '2-digit',
         month: 'long',
         year: 'numeric'
-      })  
+      })
     };
   });
-  
+
   return {
     props: {
       posts
